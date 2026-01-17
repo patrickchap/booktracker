@@ -8,6 +8,9 @@ COPY src/BookTracker.Api/BookTracker.Api.csproj src/BookTracker.Api/
 COPY src/BookTracker.Application/BookTracker.Application.csproj src/BookTracker.Application/
 COPY src/BookTracker.Domain/BookTracker.Domain.csproj src/BookTracker.Domain/
 COPY src/BookTracker.Infrastructure/BookTracker.Infrastructure.csproj src/BookTracker.Infrastructure/
+COPY tests/BookTracker.Api.Tests/BookTracker.Api.Tests.csproj tests/BookTracker.Api.Tests/
+COPY tests/BookTracker.Application.Tests/BookTracker.Application.Tests.csproj tests/BookTracker.Application.Tests/
+COPY tests/BookTracker.Infrastructure.Tests/BookTracker.Infrastructure.Tests.csproj tests/BookTracker.Infrastructure.Tests/
 
 # Restore dependencies
 RUN dotnet restore
