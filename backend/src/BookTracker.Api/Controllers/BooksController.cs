@@ -2,6 +2,7 @@ using BookTracker.Application.DTOs;
 using BookTracker.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BookTracker.Api.Controllers;
 
@@ -17,6 +18,7 @@ public class BooksController : ControllerBase
           _googleBooksService = googleBooksService;
     }
 
+    [EnableRateLimiting("external-api")]
     [HttpGet("{googleBooksId}")]
     public async Task<ActionResult<BookDetailsDto>> GetBookDetails(string googleBooksId)
     {

@@ -4,12 +4,14 @@ using BookTracker.Application.Interfaces;
 using BookTracker.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BookTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[EnableRateLimiting("general")]
 public class LibraryController : ControllerBase
 {
     private readonly ILibraryService _libraryService;

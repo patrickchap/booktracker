@@ -2,6 +2,7 @@ using BookTracker.Application.DTOs;
 using BookTracker.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BookTracker.Api.Controllers;
 
@@ -17,6 +18,7 @@ public class SearchController : ControllerBase
         _googleBooksService = googleBooksService;
     }
 
+    [EnableRateLimiting("external-api")]
     [HttpGet]
     public async Task<ActionResult<SearchResponseDto>> Search(
         [FromQuery] string q,
