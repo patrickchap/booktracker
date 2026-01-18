@@ -1,5 +1,7 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using BookTracker.Application.Interfaces;
+using Microsoft.AspNetCore.RateLimiting;
 using BookTracker.Application.Services;
 using BookTracker.Infrastructure.Caching;
 using BookTracker.Infrastructure.Data;
@@ -80,6 +82,35 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Strict limit for auth endpoints (prevent brute force)
+    options.AddFixedWindowLimiter("auth", policy =>
+    {
+        policy.PermitLimit = 10;
+        policy.Window = TimeSpan.FromMinutes(1);
+    });
+
+    // Moderate limit for external API calls (Google Books)
+    options.AddTokenBucketLimiter("external-api", policy =>
+    {
+        policy.TokenLimit = 30;
+        policy.ReplenishmentPeriod = TimeSpan.FromMinutes(1);
+        policy.TokensPerPeriod = 10;
+    });
+
+    // General limit for authenticated endpoints
+    options.AddSlidingWindowLimiter("general", policy =>
+    {
+        policy.PermitLimit = 100;
+        policy.Window = TimeSpan.FromMinutes(1);
+        policy.SegmentsPerWindow = 4;
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -90,6 +121,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

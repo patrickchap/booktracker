@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using System.Threading.RateLimiting;
 using BookTracker.Application.DTOs;
 using BookTracker.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BookTracker.Api.Controllers;
 
@@ -21,6 +23,7 @@ public class AuthController : ControllerBase
         _environment = environment;
     }
 
+    [EnableRateLimiting("auth")]
     [HttpPost("google")]
     public async Task<ActionResult<AuthUserResponseDto>> LoginWithGoogle([FromBody] GoogleTokenDto dto)
     {
@@ -36,6 +39,7 @@ public class AuthController : ControllerBase
         }
     }
 
+    [EnableRateLimiting("auth")]
     [HttpPost("refresh")]
     public async Task<ActionResult<AuthUserResponseDto>> RefreshToken()
     {
