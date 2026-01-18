@@ -11,19 +11,24 @@ namespace BookTracker.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IWebHostEnvironment _environment;
 
-    public AuthController(IAuthService authService)
+    private const string RefreshTokenCookie = "refreshToken";
+
+    public AuthController(IAuthService authService, IWebHostEnvironment environment)
     {
         _authService = authService;
+        _environment = environment;
     }
 
     [HttpPost("google")]
-    public async Task<ActionResult<AuthResponseDto>> LoginWithGoogle([FromBody] GoogleTokenDto dto)
+    public async Task<ActionResult<AuthUserResponseDto>> LoginWithGoogle([FromBody] GoogleTokenDto dto)
     {
         try
         {
             var result = await _authService.AuthenticateWithGoogleAsync(dto.IdToken);
-            return Ok(result);
+            SetRefreshTokenCookie(result.RefreshToken);
+            return Ok(new AuthUserResponseDto(result.AccessToken, result.ExpiresAt, result.User));
         }
         catch (UnauthorizedAccessException)
         {
@@ -32,15 +37,23 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto dto)
+    public async Task<ActionResult<AuthUserResponseDto>> RefreshToken()
     {
+        var refreshToken = Request.Cookies[RefreshTokenCookie];
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized(new { message = "No refresh token provided" });
+        }
+
         try
         {
-            var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
-            return Ok(result);
+            var result = await _authService.RefreshTokenAsync(refreshToken);
+            SetRefreshTokenCookie(result.RefreshToken);
+            return Ok(new AuthUserResponseDto(result.AccessToken, result.ExpiresAt, result.User));
         }
         catch (UnauthorizedAccessException)
         {
+            ClearRefreshTokenCookie();
             return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
     }
@@ -66,9 +79,47 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] RefreshTokenDto dto)
+    public async Task<IActionResult> Logout()
     {
-        await _authService.RevokeRefreshTokenAsync(dto.RefreshToken);
+        var refreshToken = Request.Cookies[RefreshTokenCookie];
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            await _authService.RevokeRefreshTokenAsync(refreshToken);
+        }
+        ClearRefreshTokenCookie();
         return NoContent();
+    }
+
+    private void SetRefreshTokenCookie(string refreshToken)
+    {
+        var isProduction = !_environment.IsDevelopment();
+        // Use Lax in development for cross-origin localhost requests, Strict in production
+        var sameSite = isProduction ? SameSiteMode.Strict : SameSiteMode.Lax;
+
+        var options = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = isProduction,
+            SameSite = sameSite,
+            Expires = DateTime.UtcNow.AddDays(30),
+            Path = "/"
+        };
+
+        Response.Cookies.Append(RefreshTokenCookie, refreshToken, options);
+    }
+
+    private void ClearRefreshTokenCookie()
+    {
+        var isProduction = !_environment.IsDevelopment();
+        var sameSite = isProduction ? SameSiteMode.Strict : SameSiteMode.Lax;
+
+        Response.Cookies.Append(RefreshTokenCookie, "", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = isProduction,
+            SameSite = sameSite,
+            Expires = DateTime.UtcNow.AddDays(-1),
+            Path = "/"
+        });
     }
 }

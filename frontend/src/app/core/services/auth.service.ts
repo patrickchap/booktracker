@@ -13,7 +13,7 @@ export class AuthService {
 
   private currentUser = signal<User | null>(null);
   private accessToken = signal<string | null>(null);
-  private refreshToken = signal<string | null>(null);
+  private tokenExpiresAt = signal<Date | null>(null);
 
   readonly user = this.currentUser.asReadonly();
   readonly isAuthenticated = computed(() => !!this.currentUser());
@@ -25,13 +25,15 @@ export class AuthService {
 
   private loadFromStorage(): void {
     const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('accessToken');
-    const storedRefreshToken = localStorage.getItem('refreshToken');
 
-    if (storedUser && storedToken) {
+    if (storedUser) {
+      // User exists, try to refresh token to get a new access token
       this.currentUser.set(JSON.parse(storedUser));
-      this.accessToken.set(storedToken);
-      this.refreshToken.set(storedRefreshToken);
+      this.refreshAuthToken().then(success => {
+        if (!success) {
+          this.clearAuthData();
+        }
+      });
     }
   }
 
@@ -64,7 +66,8 @@ export class AuthService {
     try {
       const authResponse = await this.http.post<AuthResponse>(
         `${environment.apiUrl}/auth/google`,
-        { idToken: response.credential }
+        { idToken: response.credential },
+        { withCredentials: true }
       ).toPromise();
 
       if (authResponse) {
@@ -79,21 +82,18 @@ export class AuthService {
   private setAuthData(authResponse: AuthResponse): void {
     this.currentUser.set(authResponse.user);
     this.accessToken.set(authResponse.accessToken);
-    this.refreshToken.set(authResponse.refreshToken);
+    this.tokenExpiresAt.set(new Date(authResponse.expiresAt));
 
+    // Only store user in localStorage - access token stays in memory only
     localStorage.setItem('user', JSON.stringify(authResponse.user));
-    localStorage.setItem('accessToken', authResponse.accessToken);
-    localStorage.setItem('refreshToken', authResponse.refreshToken);
   }
 
   async refreshAuthToken(): Promise<boolean> {
-    const currentRefreshToken = this.refreshToken();
-    if (!currentRefreshToken) return false;
-
     try {
       const authResponse = await this.http.post<AuthResponse>(
         `${environment.apiUrl}/auth/refresh`,
-        { refreshToken: currentRefreshToken }
+        {},
+        { withCredentials: true }
       ).toPromise();
 
       if (authResponse) {
@@ -102,32 +102,29 @@ export class AuthService {
       }
       return false;
     } catch {
-      this.logout();
       return false;
     }
   }
 
   async logout(): Promise<void> {
-    const currentRefreshToken = this.refreshToken();
-    if (currentRefreshToken) {
-      try {
-        await this.http.post(
-          `${environment.apiUrl}/auth/logout`,
-          { refreshToken: currentRefreshToken }
-        ).toPromise();
-      } catch {
-        // Ignore logout API errors
-      }
+    try {
+      await this.http.post(
+        `${environment.apiUrl}/auth/logout`,
+        {},
+        { withCredentials: true }
+      ).toPromise();
+    } catch {
+      // Ignore logout API errors
     }
 
+    this.clearAuthData();
+    this.router.navigate(['/login']);
+  }
+
+  private clearAuthData(): void {
     this.currentUser.set(null);
     this.accessToken.set(null);
-    this.refreshToken.set(null);
-
+    this.tokenExpiresAt.set(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-
-    this.router.navigate(['/login']);
   }
 }

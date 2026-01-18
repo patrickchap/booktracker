@@ -5,9 +5,9 @@ export interface User {
   avatarUrl?: string;
 }
 
+// Access token in response body (stored in memory), refresh token in HttpOnly cookie
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
   expiresAt: string;
   user: User;
 }

@@ -3,23 +3,27 @@ import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { from } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const token = authService.token();
 
-  // Skip auth for login/refresh endpoints
-  if (req.url.includes('/auth/google') || req.url.includes('/auth/refresh')) {
+  // Only intercept requests to our API
+  if (!req.url.startsWith(environment.apiUrl)) {
     return next(req);
   }
 
-  let authReq = req;
-  if (token) {
-    authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  // Add credentials for cookie-based refresh token
+  // Add Authorization header for access token
+  const token = authService.token();
+  let authReq = req.clone({
+    withCredentials: true,
+    ...(token && { setHeaders: { Authorization: `Bearer ${token}` } })
+  });
+
+  // Skip retry logic for auth endpoints
+  if (req.url.includes('/auth/google') || req.url.includes('/auth/refresh')) {
+    return next(authReq);
   }
 
   return next(authReq).pipe(
@@ -28,11 +32,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return from(authService.refreshAuthToken()).pipe(
           switchMap((success) => {
             if (success) {
+              // Retry with new token
               const newToken = authService.token();
               const retryReq = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${newToken}`
-                }
+                withCredentials: true,
+                ...(newToken && { setHeaders: { Authorization: `Bearer ${newToken}` } })
               });
               return next(retryReq);
             }
