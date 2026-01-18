@@ -28,6 +28,16 @@ public class SearchController : ControllerBase
             return BadRequest(new { message = "Search query is required" });
         }
 
+        if (q.Length > 500)
+        {
+            return BadRequest(new { message = "Search query is too long" });
+        }
+
+        if (startIndex < 0 || startIndex > 1000)
+        {
+            return BadRequest(new { message = "startIndex must be between 0 and 1000" });
+        }
+
         if (maxResults < 1 || maxResults > 40)
         {
             maxResults = 20;
