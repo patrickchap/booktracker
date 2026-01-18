@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, SecurityContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 import { SearchService } from '../../core/services/search.service';
 import { LibraryService } from '../../core/services/library.service';
 import { NavbarComponent } from '../../shared/components/navbar.component';
@@ -140,7 +141,7 @@ import { BookDetails, ReadingStatus, UserBook } from '../../core/models/book.mod
             <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
               <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Description</h2>
               <div class="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400"
-                   [innerHTML]="book()!.description">
+                   [innerHTML]="sanitizedDescription()">
               </div>
             </div>
           }
@@ -167,11 +168,18 @@ export class BookDetailsComponent implements OnInit {
   private router = inject(Router);
   private searchService = inject(SearchService);
   private libraryService = inject(LibraryService);
+  private sanitizer = inject(DomSanitizer);
 
   book = signal<BookDetails | null>(null);
   userBook = signal<UserBook | null>(null);
   loading = signal(true);
   notification = signal<string | null>(null);
+
+  sanitizedDescription = computed(() => {
+    const description = this.book()?.description;
+    if (!description) return '';
+    return this.sanitizer.sanitize(SecurityContext.HTML, description) || '';
+  });
 
   selectedStatus: ReadingStatus = ReadingStatus.WantToRead;
   selectedRating: number | undefined;
