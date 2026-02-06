@@ -4,29 +4,157 @@
 
 /* Custom global styles */
 body {
-  @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 min-h-screen;
+  @apply font-sans text-base leading-relaxed;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-display font-semibold tracking-tight;
+}
+
+h1 {
+  @apply text-4xl md:text-5xl font-bold leading-tight;
+}
+
+h2 {
+  @apply text-2xl md:text-3xl leading-snug;
+}
+
+h3 {
+  @apply text-xl md:text-2xl;
+}
+
+p {
+  @apply leading-relaxed;
+}
+
+.text-muted {
+  @apply text-gray-500 dark:text-gray-400;
+}
+
+.text-balance {
+  text-wrap: balance;
 }
 
 /* Custom component classes */
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-out transform active:scale-95;
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white
+           hover:from-primary-700 hover:to-primary-600
+           hover:shadow-glow hover:-translate-y-0.5
+           focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600;
+    @apply bg-white text-gray-700 border border-gray-200
+           hover:bg-gray-50 hover:border-gray-300 hover:shadow-soft hover:-translate-y-0.5
+           dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700
+           dark:hover:bg-gray-700 dark:hover:border-gray-600;
   }
 
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6;
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-soft p-6
+           border border-gray-100 dark:border-gray-700/50
+           transition-all duration-300 ease-out;
+  }
+
+  .card-hover {
+    @apply hover:shadow-soft-lg hover:-translate-y-1 hover:border-gray-200
+           dark:hover:border-gray-600;
+  }
+
+  .card-interactive {
+    @apply card card-hover cursor-pointer;
   }
 
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+    @apply w-full px-4 py-3 bg-white dark:bg-gray-800
+           border border-gray-200 dark:border-gray-700 rounded-xl
+           shadow-inner-soft
+           focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
+           dark:focus:ring-primary-500/30
+           transition-all duration-200
+           placeholder:text-gray-400 dark:placeholder:text-gray-500;
+  }
+
+  .stat-card {
+    @apply card text-center relative overflow-hidden;
+
+    &::before {
+      content: '';
+      @apply absolute inset-0 bg-gradient-to-br opacity-5;
+    }
+  }
+
+  .stat-card-blue {
+    @apply stat-card;
+    &::before {
+      @apply from-blue-500 to-blue-600;
+    }
+  }
+
+  .stat-card-yellow {
+    @apply stat-card;
+    &::before {
+      @apply from-yellow-500 to-yellow-600;
+    }
+  }
+
+  .stat-card-green {
+    @apply stat-card;
+    &::before {
+      @apply from-green-500 to-green-600;
+    }
+  }
+}
+
+/* Smooth page transitions */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

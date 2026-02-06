@@ -8,15 +8,20 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
-    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <nav class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-soft border-b border-gray-100 dark:border-gray-700/50 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <a routerLink="/library" class="flex items-center">
-              <svg class="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-              </svg>
-              <span class="ml-2 text-xl font-bold text-gray-900 dark:text-white">BookTracker</span>
+            <a routerLink="/library" class="flex items-center group">
+              <div class="relative">
+                <svg class="w-8 h-8 text-primary-600 transition-transform duration-300 group-hover:scale-110" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                </svg>
+                <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-accent-500 rounded-full"></div>
+              </div>
+              <span class="ml-2 text-xl font-display font-bold tracking-tight">
+                <span class="text-gray-900 dark:text-white">Book</span><span class="text-primary-600 dark:text-primary-400">Tracker</span>
+              </span>
             </a>
           </div>
 
