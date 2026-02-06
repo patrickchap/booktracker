@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { UserBook, ReadingStatus, AddBookRequest, UpdateBookRequest } from '../models/book.model';
 
@@ -41,10 +42,10 @@ export class LibraryService {
         params = params.set('status', status.toString());
       }
 
-      const response = await this.http.get<UserBook[]>(
+      const response = await firstValueFrom(this.http.get<UserBook[]>(
         `${environment.apiUrl}/library`,
         { params }
-      ).toPromise();
+      ));
 
       if (response) {
         this.books.set(response);
@@ -58,10 +59,10 @@ export class LibraryService {
 
   async addBook(request: AddBookRequest): Promise<UserBook | null> {
     try {
-      const response = await this.http.post<UserBook>(
+      const response = await firstValueFrom(this.http.post<UserBook>(
         `${environment.apiUrl}/library`,
         request
-      ).toPromise();
+      ));
 
       if (response) {
         this.books.update(books => [...books, response]);
@@ -76,10 +77,10 @@ export class LibraryService {
 
   async updateBook(bookId: string, request: UpdateBookRequest): Promise<UserBook | null> {
     try {
-      const response = await this.http.put<UserBook>(
+      const response = await firstValueFrom(this.http.put<UserBook>(
         `${environment.apiUrl}/library/${bookId}`,
         request
-      ).toPromise();
+      ));
 
       if (response) {
         this.books.update(books =>
@@ -96,9 +97,9 @@ export class LibraryService {
 
   async removeBook(bookId: string): Promise<boolean> {
     try {
-      await this.http.delete(
+      await firstValueFrom(this.http.delete(
         `${environment.apiUrl}/library/${bookId}`
-      ).toPromise();
+      ));
 
       this.books.update(books => books.filter(b => b.id !== bookId));
       return true;
@@ -110,9 +111,9 @@ export class LibraryService {
 
   async checkInLibrary(googleBooksId: string): Promise<boolean> {
     try {
-      const response = await this.http.get<{ inLibrary: boolean }>(
+      const response = await firstValueFrom(this.http.get<{ inLibrary: boolean }>(
         `${environment.apiUrl}/library/check/${googleBooksId}`
-      ).toPromise();
+      ));
       return response?.inLibrary || false;
     } catch {
       return false;
