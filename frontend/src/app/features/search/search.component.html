@@ -1,0 +1,99 @@
+<app-navbar />
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <div class="mb-6">
+      <h1 class="text-3xl font-display font-bold text-gray-900 dark:text-white tracking-tight">Search Books</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Explore millions of books to add to your library</p>
+    </div>
+
+    <form (submit)="search($event)" class="flex gap-3">
+      <div class="relative flex-1">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text"
+               [(ngModel)]="searchQuery"
+               name="query"
+               placeholder="Search by title, author, or ISBN..."
+               class="input pl-12">
+      </div>
+      <button type="submit"
+              [disabled]="searchService.isLoading()"
+              class="btn btn-primary px-6">
+        @if (searchService.isLoading()) {
+          <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+        } @else {
+          Search
+        }
+      </button>
+    </form>
+  </div>
+
+  @if (searchService.isLoading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div [style.animation-delay]="(i * 100) + 'ms'" class="animate-fade-in">
+          <app-skeleton-book-card />
+        </div>
+      }
+    </div>
+  } @else if (searchService.searchResults().items.length) {
+    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400 animate-fade-in">
+      Found {{ searchService.searchResults().totalItems }} results for "{{ searchService.query() }}"
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (book of searchService.searchResults().items; track book.googleBooksId; let i = $index) {
+        <div [style.animation-delay]="(i * 50) + 'ms'" class="animate-slide-up opacity-0" style="animation-fill-mode: forwards">
+          <app-book-card
+            [googleBooksId]="book.googleBooksId"
+            [title]="book.title"
+            [authors]="book.authors"
+            [coverImageUrl]="book.coverImageUrl"
+            [publishedDate]="book.publishedDate"
+            [showAddToLibrary]="true"
+            (addToLibrary)="addToLibrary(book)" />
+        </div>
+      }
+    </div>
+  } @else if (searchService.query()) {
+    <div class="text-center py-16 animate-fade-in">
+      <div class="w-32 h-32 mx-auto bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-display font-semibold text-gray-900 dark:text-white mb-2">No results found</h3>
+      <p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+        We couldn't find any books matching "{{ searchService.query() }}". Try a different search term.
+      </p>
+    </div>
+  } @else {
+    <div class="text-center py-16 animate-fade-in">
+      <div class="w-32 h-32 mx-auto bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/20 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-16 h-16 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-display font-semibold text-gray-900 dark:text-white mb-2">Find your next read</h3>
+      <p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+        Search millions of books by title, author, or ISBN to add to your library.
+      </p>
+    </div>
+  }
+
+  @if (notification()) {
+    <div class="fixed bottom-4 right-4 bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-xl shadow-soft-lg animate-slide-up flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      {{ notification() }}
+    </div>
+  }
+</main>

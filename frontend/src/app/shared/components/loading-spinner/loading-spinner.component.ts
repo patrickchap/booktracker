@@ -5,13 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-loading-spinner',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="flex items-center justify-center" [class]="containerClass">
-      <div class="animate-spin rounded-full border-t-2 border-b-2 border-primary-600"
-           [class]="sizeClass">
-      </div>
-    </div>
-  `
+  templateUrl: './loading-spinner.component.html'
 })
 export class LoadingSpinnerComponent {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
