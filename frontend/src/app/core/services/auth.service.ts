@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User, AuthResponse } from '../models/user.model';
 
@@ -64,11 +65,11 @@ export class AuthService {
 
   private async handleGoogleCallback(response: any): Promise<void> {
     try {
-      const authResponse = await this.http.post<AuthResponse>(
+      const authResponse = await firstValueFrom(this.http.post<AuthResponse>(
         `${environment.apiUrl}/auth/google`,
         { idToken: response.credential },
         { withCredentials: true }
-      ).toPromise();
+      ));
 
       if (authResponse) {
         this.setAuthData(authResponse);
@@ -90,11 +91,11 @@ export class AuthService {
 
   async refreshAuthToken(): Promise<boolean> {
     try {
-      const authResponse = await this.http.post<AuthResponse>(
+      const authResponse = await firstValueFrom(this.http.post<AuthResponse>(
         `${environment.apiUrl}/auth/refresh`,
         {},
         { withCredentials: true }
-      ).toPromise();
+      ));
 
       if (authResponse) {
         this.setAuthData(authResponse);
@@ -108,11 +109,11 @@ export class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await this.http.post(
+      await firstValueFrom(this.http.post(
         `${environment.apiUrl}/auth/logout`,
         {},
         { withCredentials: true }
-      ).toPromise();
+      ));
     } catch {
       // Ignore logout API errors
     }

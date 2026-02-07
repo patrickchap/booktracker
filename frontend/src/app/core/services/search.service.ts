@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SearchResponse, BookDetails } from '../models/book.model';
 
@@ -30,10 +31,10 @@ export class SearchService {
         .set('startIndex', startIndex.toString())
         .set('maxResults', maxResults.toString());
 
-      const response = await this.http.get<SearchResponse>(
+      const response = await firstValueFrom(this.http.get<SearchResponse>(
         `${environment.apiUrl}/search`,
         { params }
-      ).toPromise();
+      ));
 
       if (response) {
         this.results.set(response);
@@ -48,9 +49,9 @@ export class SearchService {
 
   async getBookDetails(googleBooksId: string): Promise<BookDetails | null> {
     try {
-      const response = await this.http.get<BookDetails>(
+      const response = await firstValueFrom(this.http.get<BookDetails>(
         `${environment.apiUrl}/books/${googleBooksId}`
-      ).toPromise();
+      ));
       return response || null;
     } catch (error) {
       console.error('Failed to get book details:', error);
