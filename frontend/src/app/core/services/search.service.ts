@@ -18,7 +18,7 @@ export class SearchService {
 
   async searchBooks(query: string, startIndex: number = 0, maxResults: number = 20): Promise<void> {
     if (!query.trim()) {
-      this.results.set({ items: [], totalItems: 0 });
+      this.clearResults();
       return;
     }
 
