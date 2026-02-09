@@ -4,13 +4,14 @@
 
 /* Custom global styles */
 body {
-  @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 min-h-screen;
+  @apply bg-surface text-ink-50 min-h-screen;
   @apply font-sans text-base leading-relaxed;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(212, 165, 116, 0.06) 0%, transparent 60%);
 }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  @apply font-display font-semibold tracking-tight;
+  @apply font-display font-semibold tracking-tight text-gold-50;
 }
 
 h1 {
@@ -30,7 +31,7 @@ p {
 }
 
 .text-muted {
-  @apply text-gray-500 dark:text-gray-400;
+  @apply text-ink-300;
 }
 
 .text-balance {
@@ -40,32 +41,29 @@ p {
 /* Custom component classes */
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-out transform active:scale-95;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-500 ease-refined transform active:scale-95;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white
-           hover:from-primary-700 hover:to-primary-600
-           hover:shadow-glow hover:-translate-y-0.5
-           focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-gold-400 to-gold-500 text-surface
+           hover:from-gold-300 hover:to-gold-400
+           hover:shadow-glow-gold hover:-translate-y-0.5
+           focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 focus:ring-offset-surface;
   }
 
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-200
-           hover:bg-gray-50 hover:border-gray-300 hover:shadow-soft hover:-translate-y-0.5
-           dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700
-           dark:hover:bg-gray-700 dark:hover:border-gray-600;
+    @apply bg-surface-elevated text-ink-50 border border-white/[0.06]
+           hover:bg-surface-overlay hover:border-white/[0.12] hover:shadow-card hover:-translate-y-0.5;
   }
 
   .card {
-    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-soft p-6
-           border border-gray-100 dark:border-gray-700/50
-           transition-all duration-300 ease-out;
+    @apply bg-surface-elevated/80 backdrop-blur-sm rounded-2xl shadow-card p-6
+           border border-white/[0.06]
+           transition-all duration-500 ease-refined;
   }
 
   .card-hover {
-    @apply hover:shadow-soft-lg hover:-translate-y-1 hover:border-gray-200
-           dark:hover:border-gray-600;
+    @apply hover:shadow-card-hover hover:-translate-y-1 hover:border-white/[0.12];
   }
 
   .card-interactive {
@@ -73,13 +71,12 @@ p {
   }
 
   .input {
-    @apply w-full px-4 py-3 bg-white dark:bg-gray-800
-           border border-gray-200 dark:border-gray-700 rounded-xl
-           shadow-inner-soft
-           focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
-           dark:focus:ring-primary-500/30
-           transition-all duration-200
-           placeholder:text-gray-400 dark:placeholder:text-gray-500;
+    @apply w-full px-4 py-3 bg-surface-elevated
+           border border-white/[0.06] rounded-xl
+           shadow-inner-glow
+           focus:ring-2 focus:ring-gold-400/30 focus:border-gold-400/50
+           transition-all duration-300
+           placeholder:text-ink-400 text-ink-50;
   }
 
   .stat-card {
@@ -87,28 +84,28 @@ p {
 
     &::before {
       content: '';
-      @apply absolute inset-0 bg-gradient-to-br opacity-5;
+      @apply absolute inset-0 bg-gradient-to-br opacity-100;
     }
   }
 
-  .stat-card-blue {
+  .stat-card-want {
     @apply stat-card;
     &::before {
-      @apply from-blue-500 to-blue-600;
+      background: linear-gradient(135deg, rgba(124, 141, 181, 0.1), transparent);
     }
   }
 
-  .stat-card-yellow {
+  .stat-card-reading {
     @apply stat-card;
     &::before {
-      @apply from-yellow-500 to-yellow-600;
+      background: linear-gradient(135deg, rgba(212, 165, 116, 0.1), transparent);
     }
   }
 
-  .stat-card-green {
+  .stat-card-finished {
     @apply stat-card;
     &::before {
-      @apply from-green-500 to-green-600;
+      background: linear-gradient(135deg, rgba(125, 171, 138, 0.1), transparent);
     }
   }
 }
@@ -116,15 +113,26 @@ p {
 /* Smooth page transitions */
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   .animate-slide-up {
-    animation: slideUp 0.4s ease-out;
+    animation: slideUp 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
+    animation: scaleIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(
+      110deg,
+      transparent 33%,
+      rgba(212, 165, 116, 0.08) 50%,
+      transparent 67%
+    );
+    background-size: 200% 100%;
+    animation: shimmerSlide 3s ease-in-out infinite;
   }
 }
 
@@ -156,5 +164,39 @@ p {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0d14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #24242f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2e2e3a;
+}
+
+/* Prose gold variant for descriptions */
+.prose-gold {
+  a {
+    @apply text-gold-400 hover:text-gold-300;
   }
 }
