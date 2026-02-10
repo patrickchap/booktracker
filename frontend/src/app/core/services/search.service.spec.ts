@@ -55,7 +55,8 @@ describe('SearchService', () => {
     it('should pass custom startIndex and maxResults', async () => {
       const promise = service.searchBooks('test', 10, 5);
       const req = httpMock.expectOne(
-        r => r.params.get('startIndex') === '10' &&
+        r => r.url === `${environment.apiUrl}/search` &&
+          r.params.get('startIndex') === '10' &&
           r.params.get('maxResults') === '5'
       );
       expect(req.request.method).toBe('GET');
@@ -100,6 +101,7 @@ describe('SearchService', () => {
 
       expect(service.searchResults()).toEqual({ items: [], totalItems: 0 });
       expect(service.isLoading()).toBe(false);
+      expect(service.query()).toBe('Angular');
       expect(console.error).toHaveBeenCalled();
     });
   });

@@ -2,11 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens as CSS custom properties */
+:root {
+  --color-gold-400-rgb: 212, 165, 116;
+  --color-surface: #0d0d14;
+  --color-surface-elevated: #1a1a24;
+  --color-surface-overlay: #24242f;
+  --color-surface-hover: #2e2e3a;
+}
+
 /* Custom global styles */
 body {
   @apply bg-surface text-ink-50 min-h-screen;
   @apply font-sans text-base leading-relaxed;
-  background-image: radial-gradient(ellipse at 50% 0%, rgba(212, 165, 116, 0.06) 0%, transparent 60%);
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(var(--color-gold-400-rgb), 0.06) 0%, transparent 60%);
 }
 
 /* Typography */
@@ -84,7 +93,7 @@ p {
 
     &::before {
       content: '';
-      @apply absolute inset-0 bg-gradient-to-br opacity-100;
+      @apply absolute inset-0;
     }
   }
 
@@ -128,7 +137,7 @@ p {
     background: linear-gradient(
       110deg,
       transparent 33%,
-      rgba(212, 165, 116, 0.08) 50%,
+      rgba(var(--color-gold-400-rgb), 0.08) 50%,
       transparent 67%
     );
     background-size: 200% 100%;
@@ -177,21 +186,30 @@ p {
 }
 
 /* Custom scrollbar */
+* {
+  scrollbar-color: var(--color-surface-overlay) var(--color-surface);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d0d14;
+  background: var(--color-surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #24242f;
+  background: var(--color-surface-overlay);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2e2e3a;
+  background: var(--color-surface-hover);
+}
+
+/* Page-level gradient background */
+.page-gradient {
+  background: radial-gradient(ellipse at 50% 30%, rgba(var(--color-gold-400-rgb), 0.08) 0%, var(--color-surface) 70%);
 }
 
 /* Prose gold variant for descriptions */

@@ -27,7 +27,7 @@ describe('SkeletonBookCardComponent', () => {
 
   it('should render placeholder elements', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const placeholders = compiled.querySelectorAll('.bg-gray-200');
+    const placeholders = compiled.querySelectorAll('.bg-surface-elevated');
     expect(placeholders.length).toBeGreaterThan(0);
   });
 });

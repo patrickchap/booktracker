@@ -108,17 +108,20 @@ describe('BookCardComponent', () => {
   describe('getStatusClass', () => {
     it('should return blue classes for WantToRead', () => {
       component.status = ReadingStatus.WantToRead;
-      expect(component.getStatusClass()).toContain('bg-blue-50');
+      expect(component.getStatusClass()).toContain('bg-status-want-muted');
+      expect(component.getStatusClass()).toContain('text-status-want');
     });
 
     it('should return amber classes for CurrentlyReading', () => {
       component.status = ReadingStatus.CurrentlyReading;
-      expect(component.getStatusClass()).toContain('bg-amber-50');
+      expect(component.getStatusClass()).toContain('bg-status-reading-muted');
+      expect(component.getStatusClass()).toContain('text-status-reading');
     });
 
     it('should return green classes for Finished', () => {
       component.status = ReadingStatus.Finished;
-      expect(component.getStatusClass()).toContain('bg-green-50');
+      expect(component.getStatusClass()).toContain('bg-status-finished-muted');
+      expect(component.getStatusClass()).toContain('text-status-finished');
     });
   });
 

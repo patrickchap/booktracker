@@ -30,7 +30,7 @@
         @if (authService.user(); as user) {
           <div class="flex items-center space-x-3">
             @if (user.avatarUrl) {
-              <img [src]="user.avatarUrl" [alt]="user.displayName" class="w-8 h-8 rounded-full">
+              <img [src]="user.avatarUrl" [alt]="user.displayName" referrerpolicy="no-referrer" class="w-8 h-8 rounded-full">
             } @else {
               <div class="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-surface font-medium">
                 {{ user.displayName.charAt(0).toUpperCase() }}
