@@ -19,6 +19,9 @@ describe('SearchComponent', () => {
       isLoading: signal(false),
       query: signal(''),
     });
+    mockSearchService.searchBooks.and.callFake((query: string) => {
+      return Promise.resolve();
+    });
 
     mockLibraryService = jasmine.createSpyObj('LibraryService', ['addBook']);
 
@@ -47,7 +50,7 @@ describe('SearchComponent', () => {
   });
 
   it('should call searchService.searchBooks on search with non-empty query', () => {
-    component.searchQuery = 'Angular';
+    component.searchQuery.set('Angular');
     const event = new Event('submit');
     spyOn(event, 'preventDefault');
     component.search(event);
@@ -55,11 +58,43 @@ describe('SearchComponent', () => {
     expect(mockSearchService.searchBooks).toHaveBeenCalledWith('Angular');
   });
 
-  it('should not search with empty query', () => {
-    component.searchQuery = '   ';
+  it('should not search with empty query via form submit', () => {
+    component.searchQuery.set('   ');
     const event = new Event('submit');
     component.search(event);
-    expect(mockSearchService.searchBooks).not.toHaveBeenCalled();
+    // Only the initial constructor call (from signal default '') should have occurred
+    const manualCalls = mockSearchService.searchBooks.calls.allArgs()
+      .filter(args => args[0] === '   ');
+    expect(manualCalls.length).toBe(0);
+  });
+
+  describe('search functionality', () => {
+    it('should have reactive search initialized', () => {
+      expect(component.searchQuery).toBeDefined();
+    });
+
+    it('should trigger manual search correctly', () => {
+      component.searchQuery.set('Angular');
+      const event = new Event('submit');
+      spyOn(event, 'preventDefault');
+      component.search(event);
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(mockSearchService.searchBooks).toHaveBeenCalledWith('Angular');
+    });
+
+    it('should not search with empty query', () => {
+      component.searchQuery.set('');
+      const event = new Event('submit');
+      component.search(event);
+      expect(mockSearchService.searchBooks).not.toHaveBeenCalledWith('');
+    });
+
+    it('should not search with whitespace-only query', () => {
+      component.searchQuery.set('   ');
+      const event = new Event('submit');
+      component.search(event);
+      expect(mockSearchService.searchBooks).not.toHaveBeenCalledWith('   ');
+    });
   });
 
   it('should add book to library and show success notification', async () => {

@@ -38,11 +38,11 @@ export class BookCardComponent {
   getStatusClass(): string {
     switch (this.status) {
       case ReadingStatus.WantToRead:
-        return 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800';
+        return 'bg-status-want-muted text-status-want border border-status-want/20';
       case ReadingStatus.CurrentlyReading:
-        return 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800';
+        return 'bg-status-reading-muted text-status-reading border border-status-reading/20';
       case ReadingStatus.Finished:
-        return 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800';
+        return 'bg-status-finished-muted text-status-finished border border-status-finished/20';
       default:
         return '';
     }
@@ -51,11 +51,11 @@ export class BookCardComponent {
   getStatusDotClass(): string {
     switch (this.status) {
       case ReadingStatus.WantToRead:
-        return 'bg-blue-500';
+        return 'bg-status-want';
       case ReadingStatus.CurrentlyReading:
-        return 'bg-amber-500 animate-pulse';
+        return 'bg-status-reading animate-pulse';
       case ReadingStatus.Finished:
-        return 'bg-green-500';
+        return 'bg-status-finished';
       default:
         return '';
     }
@@ -64,7 +64,7 @@ export class BookCardComponent {
   getCardBorderClass(): string {
     switch (this.status) {
       case ReadingStatus.CurrentlyReading:
-        return 'ring-2 ring-amber-200 dark:ring-amber-800';
+        return 'ring-2 ring-status-reading/30';
       default:
         return '';
     }

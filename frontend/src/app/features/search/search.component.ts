@@ -26,6 +26,10 @@ export class SearchComponent {
 
 
   constructor() {
+    this.setupReactiveSearch();
+  }
+
+  private setupReactiveSearch(): void {
     toObservable(this.searchQuery)
       .pipe(
         debounceTime(300),
