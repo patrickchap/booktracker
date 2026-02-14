@@ -14,6 +14,11 @@ public class BookTrackerDbContext : DbContext
     public DbSet<BookClub> BookClubs => Set<BookClub>();
     public DbSet<ClubMember> ClubMembers => Set<ClubMember>();
     public DbSet<ClubBook> ClubBooks => Set<ClubBook>();
+    public DbSet<BookNomination> BookNominations => Set<BookNomination>();
+    public DbSet<BookVote> BookVotes => Set<BookVote>();
+    public DbSet<Discussion> Discussions => Set<Discussion>();
+    public DbSet<DiscussionPost> DiscussionPosts => Set<DiscussionPost>();
+    public DbSet<ReadingSchedule> ReadingSchedules => Set<ReadingSchedule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +65,7 @@ public class BookTrackerDbContext : DbContext
             entity.Property(e => e.InviteCode).IsRequired().HasMaxLength(8);
 
             entity.HasIndex(e => e.InviteCode).IsUnique();
+            entity.HasIndex(e => e.Privacy);
 
             entity.HasOne(e => e.CreatedByUser)
                 .WithMany()
@@ -98,11 +104,90 @@ public class BookTrackerDbContext : DbContext
             entity.Property(e => e.CoverImageUrl).HasMaxLength(500);
 
             entity.HasIndex(e => new { e.BookClubId, e.GoogleBooksId }).IsUnique();
+            entity.HasIndex(e => new { e.BookClubId, e.Status });
 
             entity.HasOne(e => e.SelectedByUser)
                 .WithMany()
                 .HasForeignKey(e => e.SelectedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasMany(e => e.Nominations)
+                .WithOne(e => e.ClubBook)
+                .HasForeignKey(e => e.ClubBookId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Discussions)
+                .WithOne(e => e.ClubBook)
+                .HasForeignKey(e => e.ClubBookId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Schedules)
+                .WithOne(e => e.ClubBook)
+                .HasForeignKey(e => e.ClubBookId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<BookNomination>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Reason).HasMaxLength(2000);
+
+            entity.HasOne(e => e.NominatedByUser)
+                .WithMany()
+                .HasForeignKey(e => e.NominatedByUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Votes)
+                .WithOne(e => e.BookNomination)
+                .HasForeignKey(e => e.BookNominationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<BookVote>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasIndex(e => new { e.BookNominationId, e.UserId }).IsUnique();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Discussion>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+
+            entity.HasOne(e => e.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Posts)
+                .WithOne(e => e.Discussion)
+                .HasForeignKey(e => e.DiscussionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DiscussionPost>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Content).IsRequired().HasMaxLength(10000);
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+            entity.HasOne(e => e.AuthorUser)
+                .WithMany()
+                .HasForeignKey(e => e.AuthorUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ReadingSchedule>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(2000);
         });
     }
 }
