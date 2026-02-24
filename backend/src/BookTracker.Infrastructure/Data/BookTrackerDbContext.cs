@@ -92,7 +92,7 @@ public class BookTrackerDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<ClubBook>(entity =>
@@ -132,10 +132,12 @@ public class BookTrackerDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Reason).HasMaxLength(2000);
 
+            entity.HasIndex(e => new { e.ClubBookId, e.NominatedByUserId }).IsUnique();
+
             entity.HasOne(e => e.NominatedByUser)
                 .WithMany()
                 .HasForeignKey(e => e.NominatedByUserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.Votes)
                 .WithOne(e => e.BookNomination)
@@ -152,7 +154,7 @@ public class BookTrackerDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Discussion>(entity =>
@@ -163,7 +165,7 @@ public class BookTrackerDbContext : DbContext
             entity.HasOne(e => e.CreatedByUser)
                 .WithMany()
                 .HasForeignKey(e => e.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.Posts)
                 .WithOne(e => e.Discussion)
@@ -180,7 +182,7 @@ public class BookTrackerDbContext : DbContext
             entity.HasOne(e => e.AuthorUser)
                 .WithMany()
                 .HasForeignKey(e => e.AuthorUserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<ReadingSchedule>(entity =>
@@ -188,6 +190,8 @@ public class BookTrackerDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
             entity.Property(e => e.Description).HasMaxLength(2000);
+
+            entity.HasIndex(e => e.ClubBookId);
         });
     }
 }
