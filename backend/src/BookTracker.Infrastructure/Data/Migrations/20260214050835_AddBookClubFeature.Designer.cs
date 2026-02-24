@@ -3,6 +3,7 @@ using System;
 using BookTracker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookTracker.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(BookTrackerDbContext))]
-    partial class BookTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260214050835_AddBookClubFeature")]
+    partial class AddBookClubFeature
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,10 +97,9 @@ namespace BookTracker.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NominatedByUserId");
+                    b.HasIndex("ClubBookId");
 
-                    b.HasIndex("ClubBookId", "NominatedByUserId")
-                        .IsUnique();
+                    b.HasIndex("NominatedByUserId");
 
                     b.ToTable("BookNominations");
                 });
@@ -199,7 +201,7 @@ namespace BookTracker.Infrastructure.Data.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("RoundRobinOrder")
+                    b.Property<int>("RoundRobinOrder")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
@@ -447,7 +449,7 @@ namespace BookTracker.Infrastructure.Data.Migrations
                     b.HasOne("BookTracker.Domain.Entities.User", "NominatedByUser")
                         .WithMany()
                         .HasForeignKey("NominatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ClubBook");
@@ -466,7 +468,7 @@ namespace BookTracker.Infrastructure.Data.Migrations
                     b.HasOne("BookTracker.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("BookNomination");
@@ -503,7 +505,7 @@ namespace BookTracker.Infrastructure.Data.Migrations
                     b.HasOne("BookTracker.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("BookClub");
@@ -522,7 +524,7 @@ namespace BookTracker.Infrastructure.Data.Migrations
                     b.HasOne("BookTracker.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ClubBook");
@@ -535,7 +537,7 @@ namespace BookTracker.Infrastructure.Data.Migrations
                     b.HasOne("BookTracker.Domain.Entities.User", "AuthorUser")
                         .WithMany()
                         .HasForeignKey("AuthorUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("BookTracker.Domain.Entities.Discussion", "Discussion")
