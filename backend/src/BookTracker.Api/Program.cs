@@ -60,8 +60,7 @@ builder.Services.AddScoped<ILibraryService, LibraryService>();
 // Register HttpClient for GoogleBooksService
 builder.Services.AddHttpClient<IGoogleBooksService, GoogleBooksService>();
 
-// Register HttpClient for AuthService
-builder.Services.AddHttpClient<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add Controllers
 builder.Services.AddControllers();
