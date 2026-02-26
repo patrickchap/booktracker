@@ -5,7 +5,6 @@ import { SearchService } from '../../core/services/search.service';
 import { LibraryService } from '../../core/services/library.service';
 import { BookCardComponent } from '../../shared/components/book-card/book-card.component';
 import { SkeletonBookCardComponent } from '../../shared/components/skeleton-book-card/skeleton-book-card.component';
-import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { ReadingStatus, BookSearchResult } from '../../core/models/book.model';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, distinctUntilKeyChanged, switchMap } from 'rxjs';
@@ -13,7 +12,7 @@ import { debounceTime, distinctUntilChanged, distinctUntilKeyChanged, switchMap 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, BookCardComponent, SkeletonBookCardComponent, NavbarComponent],
+  imports: [CommonModule, FormsModule, BookCardComponent, SkeletonBookCardComponent],
   templateUrl: './search.component.html'
 })
 export class SearchComponent {

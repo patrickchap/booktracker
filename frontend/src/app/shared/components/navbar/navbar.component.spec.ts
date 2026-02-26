@@ -40,10 +40,10 @@ describe('NavbarComponent', () => {
     expect(compiled.textContent).toContain('Tracker');
   });
 
-  it('should render Search and My Library links', () => {
+  it('should render only the brand and user section (nav links moved to sidebar)', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Search');
-    expect(compiled.textContent).toContain('My Library');
+    expect(compiled.textContent).not.toContain('Search');
+    expect(compiled.textContent).not.toContain('My Library');
   });
 
   it('should show logout button when user is present', () => {

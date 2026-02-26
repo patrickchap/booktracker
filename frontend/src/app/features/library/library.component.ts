@@ -4,13 +4,12 @@ import { RouterLink } from '@angular/router';
 import { LibraryService } from '../../core/services/library.service';
 import { BookCardComponent } from '../../shared/components/book-card/book-card.component';
 import { SkeletonBookCardComponent } from '../../shared/components/skeleton-book-card/skeleton-book-card.component';
-import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { ReadingStatus } from '../../core/models/book.model';
 
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [CommonModule, RouterLink, BookCardComponent, SkeletonBookCardComponent, NavbarComponent],
+  imports: [CommonModule, RouterLink, BookCardComponent, SkeletonBookCardComponent],
   templateUrl: './library.component.html'
 })
 export class LibraryComponent implements OnInit {
