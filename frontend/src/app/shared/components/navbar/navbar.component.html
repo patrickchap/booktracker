@@ -1,6 +1,6 @@
-<nav class="bg-surface/70 backdrop-blur-md shadow-card border-b border-white/[0.06] sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
+<nav class="bg-surface/70 backdrop-blur-md shadow-card border-b border-white/[0.06] fixed top-0 left-0 right-0 z-50 h-16">
+  <div class="h-full px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-full">
       <div class="flex items-center">
         <a routerLink="/library" class="flex items-center group">
           <div class="relative">
@@ -15,34 +15,21 @@
         </a>
       </div>
 
-      <div class="flex items-center space-x-4">
-        <a routerLink="/search"
-           routerLinkActive="text-gold-400"
-           class="text-ink-300 hover:text-gold-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">
-          Search
-        </a>
-        <a routerLink="/library"
-           routerLinkActive="text-gold-400"
-           class="text-ink-300 hover:text-gold-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">
-          My Library
-        </a>
-
-        @if (authService.user(); as user) {
-          <div class="flex items-center space-x-3">
-            @if (user.avatarUrl) {
-              <img [src]="user.avatarUrl" [alt]="user.displayName" referrerpolicy="no-referrer" class="w-8 h-8 rounded-full">
-            } @else {
-              <div class="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-surface font-medium">
-                {{ user.displayName.charAt(0).toUpperCase() }}
-              </div>
-            }
-            <button (click)="logout()"
-                    class="text-ink-300 hover:text-danger-400 text-sm font-medium transition-colors duration-300">
-              Logout
-            </button>
-          </div>
-        }
-      </div>
+      @if (authService.user(); as user) {
+        <div class="flex items-center space-x-3">
+          @if (user.avatarUrl) {
+            <img [src]="user.avatarUrl" [alt]="user.displayName" referrerpolicy="no-referrer" class="w-8 h-8 rounded-full">
+          } @else {
+            <div class="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-surface font-medium">
+              {{ user.displayName.charAt(0).toUpperCase() }}
+            </div>
+          }
+          <button (click)="logout()"
+                  class="text-ink-300 hover:text-danger-400 text-sm font-medium transition-colors duration-300">
+            Logout
+          </button>
+        </div>
+      }
     </div>
   </div>
 </nav>

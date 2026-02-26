@@ -5,14 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { SearchService } from '../../core/services/search.service';
 import { LibraryService } from '../../core/services/library.service';
-import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { BookDetails, ReadingStatus, UserBook } from '../../core/models/book.model';
 
 @Component({
   selector: 'app-book-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
   templateUrl: './book-details.component.html'
 })
 export class BookDetailsComponent implements OnInit {
