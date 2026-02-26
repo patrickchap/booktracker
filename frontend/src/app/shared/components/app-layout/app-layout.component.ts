@@ -24,14 +24,22 @@ export class AppLayoutComponent implements OnInit {
   sidebarCollapsed = signal(false);
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('sidebar-collapsed');
-    if (saved !== null) {
-      this.sidebarCollapsed.set(saved === 'true');
+    try {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      if (saved !== null) {
+        this.sidebarCollapsed.set(saved === 'true');
+      }
+    } catch {
+      // localStorage unavailable; use default state
     }
   }
 
   onSidebarToggle(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);
-    localStorage.setItem('sidebar-collapsed', String(collapsed));
+    try {
+      localStorage.setItem('sidebar-collapsed', String(collapsed));
+    } catch {
+      // localStorage unavailable; toggle state still updated in memory
+    }
   }
 }
