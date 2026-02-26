@@ -1,12 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using BookTracker.Application.DTOs;
 using BookTracker.Application.Interfaces;
 using BookTracker.Domain.Entities;
+using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -17,20 +16,17 @@ public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly ICacheService _cacheService;
-    private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         IUserRepository userRepository,
         ICacheService cacheService,
-        HttpClient httpClient,
         IConfiguration configuration,
         ILogger<AuthService> logger)
     {
         _userRepository = userRepository;
         _cacheService = cacheService;
-        _httpClient = httpClient;
         _configuration = configuration;
         _logger = logger;
     }
@@ -96,33 +92,26 @@ public class AuthService : IAuthService
     {
         try
         {
-            var response = await _httpClient.GetAsync(
-                $"https://oauth2.googleapis.com/tokeninfo?id_token={idToken}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning("Google token validation failed");
-                return null;
-            }
-
-            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-
             var clientId = _configuration["Authentication:Google:ClientId"];
-            var aud = json.TryGetProperty("aud", out var audProp) ? audProp.GetString() : null;
-
-            if (aud != clientId)
+            var settings = new GoogleJsonWebSignature.ValidationSettings
             {
-                _logger.LogWarning("Token audience mismatch");
-                return null;
-            }
+                Audience = new[] { clientId }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
 
             return new GoogleUserInfo
             {
-                GoogleId = json.TryGetProperty("sub", out var sub) ? sub.GetString() ?? "" : "",
-                Email = json.TryGetProperty("email", out var email) ? email.GetString() ?? "" : "",
-                Name = json.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
-                Picture = json.TryGetProperty("picture", out var picture) ? picture.GetString() : null
+                GoogleId = payload.Subject,
+                Email = payload.Email,
+                Name = payload.Name,
+                Picture = payload.Picture
             };
+        }
+        catch (InvalidJwtException ex)
+        {
+            _logger.LogWarning(ex, "Google token validation failed");
+            return null;
         }
         catch (Exception ex)
         {
