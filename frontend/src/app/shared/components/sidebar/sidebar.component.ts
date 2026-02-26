@@ -1,13 +1,13 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 import { NAV_ITEMS, NavItem } from '../../navigation.config';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, SafeHtmlPipe],
+  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule],
   template: `
     <aside
       [class]="collapsed() ? 'w-16' : 'w-56'"
@@ -33,7 +33,7 @@ import { NAV_ITEMS, NavItem } from '../../navigation.config';
              class="flex items-center gap-3 py-2.5 rounded-lg text-ink-300 hover:text-ink-50 hover:bg-surface-overlay transition-colors duration-200"
              [title]="item.label"
              [attr.aria-label]="collapsed() ? item.label : null">
-            <div [innerHTML]="item.icon | safeHtml" class="w-5 h-5 flex-shrink-0" aria-hidden="true"></div>
+            <lucide-icon [img]="item.icon" class="w-5 h-5 flex-shrink-0" aria-hidden="true"></lucide-icon>
             @if (!collapsed()) {
               <span class="text-sm font-medium truncate">{{ item.label }}</span>
             }
