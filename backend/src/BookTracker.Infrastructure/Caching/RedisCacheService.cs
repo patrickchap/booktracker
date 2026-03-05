@@ -20,7 +20,7 @@ public class RedisCacheService : ICacheService
     public async Task<T?> GetAsync<T>(string key) where T : class
     {
         var data = await _cache.GetStringAsync(key);
-        if (string.IsNullOrEmpty(data)) return null;
+        if (string.IsNullOrEmpty(data) || data == NullSentinel) return null;
 
         return JsonSerializer.Deserialize<T>(data, JsonOptions);
     }

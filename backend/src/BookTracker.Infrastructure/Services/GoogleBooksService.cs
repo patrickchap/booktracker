@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using BookTracker.Application.DTOs;
@@ -90,8 +91,17 @@ public class GoogleBooksService : IGoogleBooksService
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Book not found: {GoogleBooksId}", googleBooksId);
-                    return null;
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        _logger.LogWarning("Book not found: {GoogleBooksId}", googleBooksId);
+                        return null;
+                    }
+
+                    var body = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException(
+                        $"Google Books API returned {(int)response.StatusCode} for book {googleBooksId}: {body}",
+                        null,
+                        response.StatusCode);
                 }
 
                 var json = await response.Content.ReadFromJsonAsync<JsonElement>();
@@ -112,7 +122,7 @@ public class GoogleBooksService : IGoogleBooksService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching book details from Google Books API: {GoogleBooksId}", googleBooksId);
-                return null;
+                throw;
             }
         }, DetailsCacheDuration);
     }
