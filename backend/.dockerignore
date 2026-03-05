@@ -1,0 +1,22 @@
+# Build artifacts
+**/bin/
+**/obj/
+
+# Local dev overrides — must never enter a container image
+**/appsettings.Local.json
+
+# Secrets and credentials
+**/.env
+**/.env.*
+
+# IDE / OS noise
+**/.vs/
+**/.idea/
+**/.vscode/
+**/*.user
+**/.DS_Store
+**/Thumbs.db
+
+# Test results
+**/TestResults/
+**/coverage/
