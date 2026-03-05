@@ -21,6 +21,11 @@ builder.Configuration
     .AddEnvironmentVariables()
     .AddCommandLine(args);
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 // Add DbContext
 builder.Services.AddDbContext<BookTrackerDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"),
