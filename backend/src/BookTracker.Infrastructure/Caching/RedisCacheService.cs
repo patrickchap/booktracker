@@ -37,13 +37,23 @@ public class RedisCacheService : ICacheService
         await _cache.SetStringAsync(key, data, options);
     }
 
-    public async Task<T> GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiration = null) where T : class
+    private const string NullSentinel = "__null__";
+
+    public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T?>> factory, TimeSpan? expiration = null) where T : class
     {
-        var cached = await GetAsync<T>(key);
-        if (cached != null) return cached;
+        var data = await _cache.GetStringAsync(key);
+        if (data == NullSentinel) return null;
+        if (!string.IsNullOrEmpty(data))
+            return JsonSerializer.Deserialize<T>(data, JsonOptions);
 
         var value = await factory();
-        await SetAsync(key, value, expiration);
+
+        var options = new DistributedCacheEntryOptions();
+        if (expiration.HasValue)
+            options.AbsoluteExpirationRelativeToNow = expiration;
+
+        var serialized = value is null ? NullSentinel : JsonSerializer.Serialize(value, JsonOptions);
+        await _cache.SetStringAsync(key, serialized, options);
         return value;
     }
 

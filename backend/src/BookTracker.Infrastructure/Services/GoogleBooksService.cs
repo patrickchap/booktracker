@@ -91,7 +91,7 @@ public class GoogleBooksService : IGoogleBooksService
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning("Book not found: {GoogleBooksId}", googleBooksId);
-                    return null!;
+                    return null;
                 }
 
                 var json = await response.Content.ReadFromJsonAsync<JsonElement>();
@@ -112,7 +112,7 @@ public class GoogleBooksService : IGoogleBooksService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching book details from Google Books API: {GoogleBooksId}", googleBooksId);
-                return null!;
+                return null;
             }
         }, DetailsCacheDuration);
     }
