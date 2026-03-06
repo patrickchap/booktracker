@@ -1,4 +1,6 @@
+using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using BookTracker.Application.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
@@ -8,6 +10,7 @@ using BookTracker.Infrastructure.Data;
 using BookTracker.Infrastructure.Repositories;
 using BookTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -118,6 +121,32 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler(errApp =>
+{
+    errApp.Run(async context =>
+    {
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        var ex = feature?.Error;
+
+        var (statusCode, message) = ex switch
+        {
+            HttpRequestException httpEx => (
+                (int)(httpEx.StatusCode ?? HttpStatusCode.BadGateway),
+                "An upstream service error occurred. Please try again later."),
+            _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
+        };
+
+        // Clamp non-5xx upstream codes (e.g. 404 from Google Books) to 502
+        if (statusCode is >= 200 and < 500)
+            statusCode = StatusCodes.Status502BadGateway;
+
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(
+            JsonSerializer.Serialize(new { message }));
+    });
+});
 
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
