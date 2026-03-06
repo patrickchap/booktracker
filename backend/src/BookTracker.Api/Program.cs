@@ -138,12 +138,15 @@ app.UseExceptionHandler(errApp =>
             HttpRequestException httpEx => (
                 (int)(httpEx.StatusCode ?? HttpStatusCode.BadGateway),
                 "An upstream service error occurred. Please try again later."),
+            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized."),
+            InvalidOperationException domainEx => (StatusCodes.Status400BadRequest, domainEx.Message),
+            ArgumentException domainEx => (StatusCodes.Status400BadRequest, domainEx.Message),
             _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
         };
 
         // Clamp 4xx upstream codes (e.g. 400, 401, 403 from Google Books) to 502
         // Note: 404 from GoogleBooksService.GetBookDetailsAsync is returned as null, not an exception
-        if (statusCode is >= 400 and < 500)
+        if (ex is HttpRequestException && statusCode is >= 400 and < 500)
             statusCode = StatusCodes.Status502BadGateway;
 
         context.Response.StatusCode = statusCode;

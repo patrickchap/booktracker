@@ -52,15 +52,8 @@ public class LibraryController : ControllerBase
         var userId = GetUserId();
         if (userId == null) return Unauthorized();
 
-        try
-        {
-            var book = await _libraryService.AddBookToLibraryAsync(userId.Value, dto);
-            return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var book = await _libraryService.AddBookToLibraryAsync(userId.Value, dto);
+        return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
     }
 
     [HttpPut("{id:guid}")]
@@ -69,20 +62,13 @@ public class LibraryController : ControllerBase
         var userId = GetUserId();
         if (userId == null) return Unauthorized();
 
-        try
+        var book = await _libraryService.UpdateUserBookAsync(userId.Value, id, dto);
+        if (book == null)
         {
-            var book = await _libraryService.UpdateUserBookAsync(userId.Value, id, dto);
-            if (book == null)
-            {
-                return NotFound(new { message = "Book not found in library" });
-            }
+            return NotFound(new { message = "Book not found in library" });
+        }
 
-            return Ok(book);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        return Ok(book);
     }
 
     [HttpDelete("{id:guid}")]
