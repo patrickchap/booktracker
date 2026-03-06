@@ -27,16 +27,9 @@ public class AuthController : ControllerBase
     [HttpPost("google")]
     public async Task<ActionResult<AuthUserResponseDto>> LoginWithGoogle([FromBody] GoogleTokenDto dto)
     {
-        try
-        {
-            var result = await _authService.AuthenticateWithGoogleAsync(dto.IdToken);
-            SetRefreshTokenCookie(result.RefreshToken);
-            return Ok(new AuthUserResponseDto(result.AccessToken, result.ExpiresAt, result.User));
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized(new { message = "Invalid Google token" });
-        }
+        var result = await _authService.AuthenticateWithGoogleAsync(dto.IdToken);
+        SetRefreshTokenCookie(result.RefreshToken);
+        return Ok(new AuthUserResponseDto(result.AccessToken, result.ExpiresAt, result.User));
     }
 
     [EnableRateLimiting("auth")]
@@ -58,7 +51,7 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException)
         {
             ClearRefreshTokenCookie();
-            return Unauthorized(new { message = "Invalid or expired refresh token" });
+            throw;
         }
     }
 
@@ -105,7 +98,7 @@ public class AuthController : ControllerBase
             HttpOnly = true,
             Secure = isProduction,
             SameSite = sameSite,
-            Expires = DateTime.UtcNow.AddDays(30),
+            Expires = DateTime.UtcNow.AddDays(7),
             Path = "/"
         };
 

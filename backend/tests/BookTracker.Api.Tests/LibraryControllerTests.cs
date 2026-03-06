@@ -99,19 +99,26 @@ public class LibraryControllerTests
     }
 
     [Fact]
-    public async Task AddBook_ReturnsBadRequestOnError()
+    public async Task AddBook_PropagatesInvalidOperationException()
     {
-        // Arrange
         var addBookDto = new AddBookDto("test123", ReadingStatus.WantToRead);
-
         _libraryServiceMock.Setup(x => x.AddBookToLibraryAsync(_testUserId, addBookDto))
-            .ThrowsAsync(new InvalidOperationException("Book already exists"));
+            .ThrowsAsync(new InvalidOperationException("Book already exists in library"));
 
-        // Act
-        var result = await _controller.AddBook(addBookDto);
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _controller.AddBook(addBookDto));
+    }
 
-        // Assert
-        Assert.IsType<BadRequestObjectResult>(result.Result);
+    [Fact]
+    public async Task UpdateBook_PropagatesArgumentException()
+    {
+        var bookId = Guid.NewGuid();
+        var updateDto = new UpdateBookDto(null, null, null, 6, null);
+        _libraryServiceMock.Setup(x => x.UpdateUserBookAsync(_testUserId, bookId, updateDto))
+            .ThrowsAsync(new ArgumentException("Rating must be between 1 and 5"));
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _controller.UpdateBook(bookId, updateDto));
     }
 
     [Fact]
