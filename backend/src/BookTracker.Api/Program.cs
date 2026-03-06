@@ -84,33 +84,42 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add Rate Limiting
+// Add Rate Limiting (partitioned per client IP)
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    // Strict limit for auth endpoints (prevent brute force)
-    options.AddFixedWindowLimiter("auth", policy =>
-    {
-        policy.PermitLimit = 10;
-        policy.Window = TimeSpan.FromMinutes(1);
-    });
+    // Strict limit for auth endpoints (prevent brute force) — per IP
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+            }));
 
-    // Moderate limit for external API calls (Google Books)
-    options.AddTokenBucketLimiter("external-api", policy =>
-    {
-        policy.TokenLimit = 30;
-        policy.ReplenishmentPeriod = TimeSpan.FromMinutes(1);
-        policy.TokensPerPeriod = 10;
-    });
+    // Moderate limit for external API calls (Google Books) — per IP
+    options.AddPolicy("external-api", httpContext =>
+        RateLimitPartition.GetTokenBucketLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 30,
+                ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+                TokensPerPeriod = 10,
+            }));
 
-    // General limit for authenticated endpoints
-    options.AddSlidingWindowLimiter("general", policy =>
-    {
-        policy.PermitLimit = 100;
-        policy.Window = TimeSpan.FromMinutes(1);
-        policy.SegmentsPerWindow = 4;
-    });
+    // General limit for authenticated endpoints — per IP
+    options.AddPolicy("general", httpContext =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 4,
+            }));
 });
 
 var app = builder.Build();
