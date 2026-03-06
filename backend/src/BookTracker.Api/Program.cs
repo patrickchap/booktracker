@@ -141,8 +141,9 @@ app.UseExceptionHandler(errApp =>
             _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
         };
 
-        // Clamp non-5xx upstream codes (e.g. 404 from Google Books) to 502
-        if (statusCode is >= 200 and < 500)
+        // Clamp 4xx upstream codes (e.g. 400, 401, 403 from Google Books) to 502
+        // Note: 404 from GoogleBooksService.GetBookDetailsAsync is returned as null, not an exception
+        if (statusCode is >= 400 and < 500)
             statusCode = StatusCodes.Status502BadGateway;
 
         context.Response.StatusCode = statusCode;
