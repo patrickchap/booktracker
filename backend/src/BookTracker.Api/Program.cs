@@ -130,8 +130,6 @@ app.UseExceptionHandler(errApp =>
         var ex = feature?.Error;
 
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        if (ex is not null)
-            logger.LogError(ex, "Unhandled exception occurred for {Method} {Path}", context.Request.Method, context.Request.Path);
 
         var (statusCode, message) = ex switch
         {
@@ -148,6 +146,13 @@ app.UseExceptionHandler(errApp =>
         // Note: 404 from GoogleBooksService.GetBookDetailsAsync is returned as null, not an exception
         if (ex is HttpRequestException && statusCode is >= 400 and < 500)
             statusCode = StatusCodes.Status502BadGateway;
+
+        if (ex is not null)
+        {
+            var logLevel = statusCode < 500 ? LogLevel.Warning : LogLevel.Error;
+            logger.Log(logLevel, logLevel == LogLevel.Error ? ex : null,
+                "Unhandled exception occurred for {Method} {Path}", context.Request.Method, context.Request.Path);
+        }
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
