@@ -1,4 +1,6 @@
+using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using BookTracker.Application.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
@@ -8,6 +10,7 @@ using BookTracker.Infrastructure.Data;
 using BookTracker.Infrastructure.Repositories;
 using BookTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -118,6 +121,45 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler(errApp =>
+{
+    errApp.Run(async context =>
+    {
+        var feature = context.Features.Get<IExceptionHandlerFeature>();
+        var ex = feature?.Error;
+
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+
+        var (statusCode, message) = ex switch
+        {
+            HttpRequestException httpEx => (
+                (int)(httpEx.StatusCode ?? HttpStatusCode.BadGateway),
+                "An upstream service error occurred. Please try again later."),
+            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized."),
+            InvalidOperationException domainEx => (StatusCodes.Status400BadRequest, domainEx.Message),
+            ArgumentException domainEx => (StatusCodes.Status400BadRequest, domainEx.Message),
+            _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
+        };
+
+        // Clamp 4xx upstream codes (e.g. 400, 401, 403 from Google Books) to 502
+        // Note: 404 from GoogleBooksService.GetBookDetailsAsync is returned as null, not an exception
+        if (ex is HttpRequestException && statusCode is >= 400 and < 500)
+            statusCode = StatusCodes.Status502BadGateway;
+
+        if (ex is not null)
+        {
+            var logLevel = statusCode < 500 ? LogLevel.Warning : LogLevel.Error;
+            logger.Log(logLevel, logLevel == LogLevel.Error ? ex : null,
+                "Unhandled exception occurred for {Method} {Path}", context.Request.Method, context.Request.Path);
+        }
+
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(
+            JsonSerializer.Serialize(new { message }));
+    });
+});
 
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
