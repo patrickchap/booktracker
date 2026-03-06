@@ -129,6 +129,10 @@ app.UseExceptionHandler(errApp =>
         var feature = context.Features.Get<IExceptionHandlerFeature>();
         var ex = feature?.Error;
 
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        if (ex is not null)
+            logger.LogError(ex, "Unhandled exception occurred for {Method} {Path}", context.Request.Method, context.Request.Path);
+
         var (statusCode, message) = ex switch
         {
             HttpRequestException httpEx => (
