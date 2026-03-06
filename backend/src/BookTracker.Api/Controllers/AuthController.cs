@@ -98,7 +98,7 @@ public class AuthController : ControllerBase
             HttpOnly = true,
             Secure = isProduction,
             SameSite = sameSite,
-            Expires = DateTime.UtcNow.AddDays(30),
+            Expires = DateTime.UtcNow.AddDays(7),
             Path = "/"
         };
 
