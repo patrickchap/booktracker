@@ -66,5 +66,6 @@ yarn-debug.log*
 yarn-error.log*
 
 
-#AI 
+#AI
 CLAUDE.md
+.claude/
