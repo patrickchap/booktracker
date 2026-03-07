@@ -8,17 +8,7 @@ import { BottomTabsComponent } from '../bottom-tabs/bottom-tabs.component';
   selector: 'app-layout',
   standalone: true,
   imports: [RouterOutlet, NavbarComponent, SidebarComponent, BottomTabsComponent],
-  template: `
-    <app-navbar />
-    <app-sidebar [collapsed]="sidebarCollapsed()" (collapsedChange)="onSidebarToggle($event)" />
-    <app-bottom-tabs />
-
-    <main
-      [class]="sidebarCollapsed() ? 'md:pl-16' : 'md:pl-56'"
-      class="pt-16 pb-16 md:pb-0 min-h-screen transition-all duration-300">
-      <router-outlet />
-    </main>
-  `
+  templateUrl: './app-layout.component.html'
 })
 export class AppLayoutComponent implements OnInit {
   sidebarCollapsed = signal(false);

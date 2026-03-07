@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,11 +8,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './loading-spinner.component.html'
 })
 export class LoadingSpinnerComponent {
-  @Input() size: 'sm' | 'md' | 'lg' = 'md';
-  @Input() fullScreen = false;
+  size = input<'sm' | 'md' | 'lg'>('md');
+  fullScreen = input(false);
 
   get sizeClass(): string {
-    switch (this.size) {
+    switch (this.size()) {
       case 'sm':
         return 'h-6 w-6';
       case 'lg':
@@ -23,6 +23,6 @@ export class LoadingSpinnerComponent {
   }
 
   get containerClass(): string {
-    return this.fullScreen ? 'min-h-screen' : 'py-8';
+    return this.fullScreen() ? 'min-h-screen' : 'py-8';
   }
 }

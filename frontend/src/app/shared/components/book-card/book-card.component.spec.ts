@@ -15,9 +15,9 @@ describe('BookCardComponent', () => {
 
     fixture = TestBed.createComponent(BookCardComponent);
     component = fixture.componentInstance;
-    component.googleBooksId = 'test-id';
-    component.title = 'Test Book';
-    component.authors = ['Author One'];
+    fixture.componentRef.setInput('googleBooksId', 'test-id');
+    fixture.componentRef.setInput('title', 'Test Book');
+    fixture.componentRef.setInput('authors', ['Author One']);
     fixture.detectChanges();
   });
 
@@ -36,7 +36,7 @@ describe('BookCardComponent', () => {
   });
 
   it('should display cover image when provided', () => {
-    component.coverImageUrl = 'https://example.com/cover.jpg';
+    fixture.componentRef.setInput('coverImageUrl', 'https://example.com/cover.jpg');
     fixture.detectChanges();
     const img = fixture.nativeElement.querySelector('img');
     expect(img).toBeTruthy();
@@ -44,7 +44,7 @@ describe('BookCardComponent', () => {
   });
 
   it('should show placeholder when no cover image', () => {
-    component.coverImageUrl = undefined;
+    fixture.componentRef.setInput('coverImageUrl', undefined);
     fixture.detectChanges();
     const img = fixture.nativeElement.querySelector('img');
     expect(img).toBeFalsy();
@@ -56,14 +56,14 @@ describe('BookCardComponent', () => {
   });
 
   it('should hide View Details when showViewDetails is false', () => {
-    component.showViewDetails = false;
+    fixture.componentRef.setInput('showViewDetails', false);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).not.toContain('View Details');
   });
 
   it('should show Add to Library button when showAddToLibrary is true', () => {
-    component.showAddToLibrary = true;
+    fixture.componentRef.setInput('showAddToLibrary', true);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Add to Library');
@@ -75,7 +75,7 @@ describe('BookCardComponent', () => {
   });
 
   it('should emit addToLibrary event when Add to Library is clicked', () => {
-    component.showAddToLibrary = true;
+    fixture.componentRef.setInput('showAddToLibrary', true);
     fixture.detectChanges();
     spyOn(component.addToLibrary, 'emit');
     const button = fixture.nativeElement.querySelector('button');
@@ -85,41 +85,41 @@ describe('BookCardComponent', () => {
 
   describe('getStatusLabel', () => {
     it('should return "Want to Read" for WantToRead status', () => {
-      component.status = ReadingStatus.WantToRead;
+      fixture.componentRef.setInput('status', ReadingStatus.WantToRead);
       expect(component.getStatusLabel()).toBe('Want to Read');
     });
 
     it('should return "Currently Reading" for CurrentlyReading status', () => {
-      component.status = ReadingStatus.CurrentlyReading;
+      fixture.componentRef.setInput('status', ReadingStatus.CurrentlyReading);
       expect(component.getStatusLabel()).toBe('Currently Reading');
     });
 
     it('should return "Finished" for Finished status', () => {
-      component.status = ReadingStatus.Finished;
+      fixture.componentRef.setInput('status', ReadingStatus.Finished);
       expect(component.getStatusLabel()).toBe('Finished');
     });
 
     it('should return empty string for undefined status', () => {
-      component.status = undefined;
+      fixture.componentRef.setInput('status', undefined);
       expect(component.getStatusLabel()).toBe('');
     });
   });
 
   describe('getStatusClass', () => {
     it('should return blue classes for WantToRead', () => {
-      component.status = ReadingStatus.WantToRead;
+      fixture.componentRef.setInput('status', ReadingStatus.WantToRead);
       expect(component.getStatusClass()).toContain('bg-status-want-muted');
       expect(component.getStatusClass()).toContain('text-status-want');
     });
 
     it('should return amber classes for CurrentlyReading', () => {
-      component.status = ReadingStatus.CurrentlyReading;
+      fixture.componentRef.setInput('status', ReadingStatus.CurrentlyReading);
       expect(component.getStatusClass()).toContain('bg-status-reading-muted');
       expect(component.getStatusClass()).toContain('text-status-reading');
     });
 
     it('should return green classes for Finished', () => {
-      component.status = ReadingStatus.Finished;
+      fixture.componentRef.setInput('status', ReadingStatus.Finished);
       expect(component.getStatusClass()).toContain('bg-status-finished-muted');
       expect(component.getStatusClass()).toContain('text-status-finished');
     });
@@ -127,12 +127,12 @@ describe('BookCardComponent', () => {
 
   describe('getCardBorderClass', () => {
     it('should return ring classes for CurrentlyReading', () => {
-      component.status = ReadingStatus.CurrentlyReading;
+      fixture.componentRef.setInput('status', ReadingStatus.CurrentlyReading);
       expect(component.getCardBorderClass()).toContain('ring-2');
     });
 
     it('should return empty string for other statuses', () => {
-      component.status = ReadingStatus.Finished;
+      fixture.componentRef.setInput('status', ReadingStatus.Finished);
       expect(component.getCardBorderClass()).toBe('');
     });
   });

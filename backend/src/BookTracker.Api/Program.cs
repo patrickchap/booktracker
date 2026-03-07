@@ -66,6 +66,7 @@ builder.Services.AddScoped<IUserBookRepository, UserBookRepository>();
 // Register Services
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
+builder.Services.AddScoped<IBookClubService, BookClubService>();
 
 // Register HttpClient for GoogleBooksService
 builder.Services.AddHttpClient<IGoogleBooksService, GoogleBooksService>();
