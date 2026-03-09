@@ -52,6 +52,7 @@ describe('ClubDetailComponent', () => {
     };
 
     beforeEach(async () => {
+      TestBed.resetTestingModule();
       const mockBookClubService = jasmine.createSpyObj('BookClubService', ['getClub', 'deleteClub']);
       mockBookClubService.getClub.and.resolveTo(mockClub);
       const mockAuthService = jasmine.createSpyObj('AuthService', [], { user: signal(null) });
@@ -59,8 +60,8 @@ describe('ClubDetailComponent', () => {
       await TestBed.configureTestingModule({
         imports: [ClubDetailComponent],
         providers: [
-          { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'club-1' } } } },
           provideRouter([]),
+          { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'club-1' } } } },
           { provide: BookClubService, useValue: mockBookClubService },
           { provide: AuthService, useValue: mockAuthService },
         ],
