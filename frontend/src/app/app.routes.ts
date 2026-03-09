@@ -26,6 +26,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/book-clubs/book-clubs.component').then(m => m.BookClubsComponent)
       },
       {
+        path: 'clubs/create',
+        loadComponent: () => import('./features/create-club/create-club.component').then(m => m.CreateClubComponent)
+      },
+      {
+        path: 'clubs/:id',
+        loadComponent: () => import('./features/club-detail/club-detail.component').then(m => m.ClubDetailComponent)
+      },
+      {
         path: 'book/:id',
         loadComponent: () => import('./features/book-details/book-details.component').then(m => m.BookDetailsComponent)
       }

@@ -1,0 +1,182 @@
+<main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <a routerLink="/clubs" class="text-ink-300 hover:text-ink-50 text-sm flex items-center gap-1 mb-4 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Clubs
+    </a>
+    <h1 class="text-3xl font-display font-bold text-gold-50 tracking-tight">Create a Book Club</h1>
+    <p class="text-ink-300 mt-1">Start a club and invite readers to join</p>
+  </div>
+
+  <div class="card space-y-6">
+
+    <!-- Club Name -->
+    <div>
+      <label class="block text-sm font-medium text-ink-100 mb-2" for="clubName">
+        Club Name <span class="text-red-400">*</span>
+      </label>
+      <input
+        id="clubName"
+        type="text"
+        [(ngModel)]="name"
+        placeholder="e.g. The Midnight Readers"
+        class="w-full bg-surface-elevated border border-white/[0.08] rounded-lg px-4 py-2.5 text-ink-50 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500/40 transition-colors"
+        maxlength="100"
+      />
+    </div>
+
+    <!-- Privacy -->
+    <div>
+      <label class="block text-sm font-medium text-ink-100 mb-3">Privacy</label>
+      <div class="flex gap-3">
+        <label class="flex items-center gap-3 flex-1 p-3 rounded-lg border cursor-pointer transition-colors"
+               [class]="privacy === 'Public'
+                 ? 'border-gold-500/40 bg-gold-900/20'
+                 : 'border-white/[0.08] bg-surface-elevated hover:border-white/20'">
+          <input type="radio" name="privacy" value="Public" [(ngModel)]="privacy" class="sr-only" />
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+              <div class="text-sm font-medium text-ink-50">Public</div>
+              <div class="text-xs text-ink-400">Anyone can find and join</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="flex items-center gap-3 flex-1 p-3 rounded-lg border cursor-pointer transition-colors"
+               [class]="privacy === 'Private'
+                 ? 'border-gold-500/40 bg-gold-900/20'
+                 : 'border-white/[0.08] bg-surface-elevated hover:border-white/20'">
+          <input type="radio" name="privacy" value="Private" [(ngModel)]="privacy" class="sr-only" />
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <div>
+              <div class="text-sm font-medium text-ink-50">Private</div>
+              <div class="text-xs text-ink-400">Invite-only membership</div>
+            </div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Invite Members -->
+    <div>
+      <label class="block text-sm font-medium text-ink-100 mb-2" for="memberSearch">
+        Invite Members <span class="text-ink-400 font-normal">(optional)</span>
+      </label>
+
+      <!-- Invited chips -->
+      @if (invitedUsers().length > 0) {
+        <div class="flex flex-wrap gap-2 mb-2">
+          @for (user of invitedUsers(); track user.id) {
+            <span class="inline-flex items-center gap-1.5 bg-gold-900/30 border border-gold-500/20 text-gold-200 text-sm rounded-full px-3 py-1">
+              @if (user.avatarUrl) {
+                <img [src]="user.avatarUrl" class="w-4 h-4 rounded-full" alt="" />
+              } @else {
+                <span class="w-4 h-4 rounded-full bg-gold-700/40 flex items-center justify-center text-xs text-gold-300">
+                  {{ user.displayName[0] }}
+                </span>
+              }
+              {{ user.displayName }}
+              <button type="button" (click)="removeUser(user.id)"
+                      [attr.aria-label]="'Remove ' + user.displayName"
+                      class="text-gold-400 hover:text-gold-100 transition-colors ml-0.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </span>
+          }
+        </div>
+      }
+
+      <!-- Search input -->
+      <div class="relative">
+        <input
+          id="memberSearch"
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          (blur)="closeDropdown()"
+          placeholder="Search by name or email..."
+          class="w-full bg-surface-elevated border border-white/[0.08] rounded-lg px-4 py-2.5 text-ink-50 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500/40 transition-colors"
+        />
+        @if (isSearching()) {
+          <div class="absolute right-3 top-1/2 -translate-y-1/2">
+            <svg class="w-4 h-4 text-ink-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+          </div>
+        }
+
+        <!-- Dropdown -->
+        @if (showDropdown() && searchResults().length > 0) {
+          <div class="absolute z-10 w-full mt-1 bg-surface border border-white/[0.08] rounded-lg shadow-xl overflow-hidden">
+            @for (user of searchResults(); track user.id) {
+              <button
+                type="button"
+                (mousedown)="addUser(user)"
+                class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-elevated transition-colors text-left">
+                @if (user.avatarUrl) {
+                  <img [src]="user.avatarUrl" class="w-8 h-8 rounded-full flex-shrink-0" alt="" />
+                } @else {
+                  <div class="w-8 h-8 rounded-full bg-gold-900/40 flex items-center justify-center text-gold-300 font-medium text-sm flex-shrink-0">
+                    {{ user.displayName[0] }}
+                  </div>
+                }
+                <div>
+                  <div class="text-sm font-medium text-ink-50">{{ user.displayName }}</div>
+                  <div class="text-xs text-ink-400">{{ user.email }}</div>
+                </div>
+              </button>
+            }
+          </div>
+        }
+
+        @if (showDropdown() && searchResults().length === 0 && !isSearching() && searchQuery.trim()) {
+          <div class="absolute z-10 w-full mt-1 bg-surface border border-white/[0.08] rounded-lg shadow-xl px-4 py-3 text-sm text-ink-400">
+            No users found
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="rounded-lg bg-red-900/20 border border-red-500/30 px-4 py-3 text-sm text-red-300">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <a routerLink="/clubs" class="btn btn-secondary">Cancel</a>
+      <button
+        type="button"
+        (click)="submit()"
+        [disabled]="!canSubmit"
+        class="btn btn-primary"
+        [class.opacity-50]="!canSubmit"
+        [class.cursor-not-allowed]="!canSubmit">
+        @if (isSubmitting()) {
+          <svg class="w-4 h-4 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Creating...
+        } @else {
+          Create Club
+        }
+      </button>
+    </div>
+  </div>
+</main>

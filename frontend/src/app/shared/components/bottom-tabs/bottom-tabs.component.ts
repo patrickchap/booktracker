@@ -8,22 +8,7 @@ import { NAV_ITEMS, NavItem } from '../../navigation.config';
   selector: 'app-bottom-tabs',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule],
-  template: `
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-elevated border-t border-white/[0.06] z-50">
-      <div class="flex justify-around items-center h-16">
-        @for (item of navItems; track item.route) {
-          <a [routerLink]="item.route"
-             routerLinkActive="text-gold-400"
-             [routerLinkActiveOptions]="{ exact: item.exact }"
-             class="flex items-center justify-center flex-1 h-full text-ink-300 hover:text-ink-50 transition-colors duration-200"
-             [title]="item.label"
-             [attr.aria-label]="item.label">
-            <lucide-icon [img]="item.icon" class="w-6 h-6" aria-hidden="true"></lucide-icon>
-          </a>
-        }
-      </div>
-    </nav>
-  `
+  templateUrl: './bottom-tabs.component.html'
 })
 export class BottomTabsComponent {
   navItems: NavItem[] = NAV_ITEMS;

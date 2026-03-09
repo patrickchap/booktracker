@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReadingStatus } from '../../../core/models/book.model';
@@ -10,20 +10,20 @@ import { ReadingStatus } from '../../../core/models/book.model';
   templateUrl: './book-card.component.html'
 })
 export class BookCardComponent {
-  @Input() googleBooksId!: string;
-  @Input() title!: string;
-  @Input() authors: string[] = [];
-  @Input() coverImageUrl?: string;
-  @Input() publishedDate?: string;
-  @Input() status?: ReadingStatus;
-  @Input() rating?: number;
-  @Input() showViewDetails = true;
-  @Input() showAddToLibrary = false;
+  googleBooksId = input.required<string>();
+  title = input.required<string>();
+  authors = input<string[]>([]);
+  coverImageUrl = input<string | undefined>(undefined);
+  publishedDate = input<string | undefined>(undefined);
+  status = input<ReadingStatus | undefined>(undefined);
+  rating = input<number | undefined>(undefined);
+  showViewDetails = input(true);
+  showAddToLibrary = input(false);
 
-  @Output() addToLibrary = new EventEmitter<void>();
+  addToLibrary = output<void>();
 
   getStatusLabel(): string {
-    switch (this.status) {
+    switch (this.status()) {
       case ReadingStatus.WantToRead:
         return 'Want to Read';
       case ReadingStatus.CurrentlyReading:
@@ -36,7 +36,7 @@ export class BookCardComponent {
   }
 
   getStatusClass(): string {
-    switch (this.status) {
+    switch (this.status()) {
       case ReadingStatus.WantToRead:
         return 'bg-status-want-muted text-status-want border border-status-want/20';
       case ReadingStatus.CurrentlyReading:
@@ -49,7 +49,7 @@ export class BookCardComponent {
   }
 
   getStatusDotClass(): string {
-    switch (this.status) {
+    switch (this.status()) {
       case ReadingStatus.WantToRead:
         return 'bg-status-want';
       case ReadingStatus.CurrentlyReading:
@@ -62,7 +62,7 @@ export class BookCardComponent {
   }
 
   getCardBorderClass(): string {
-    switch (this.status) {
+    switch (this.status()) {
       case ReadingStatus.CurrentlyReading:
         return 'ring-2 ring-status-reading/30';
       default:
