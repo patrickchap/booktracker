@@ -32,8 +32,12 @@ export class BookClubsComponent implements OnInit {
   async switchTab(tab: Tab): Promise<void> {
     this.activeTab.set(tab);
     if (tab === 'public' && !this.publicTabLoaded) {
-      this.publicTabLoaded = true;
-      await this.bookClubService.loadPublicClubs();
+      try {
+        await this.bookClubService.loadPublicClubs();
+        this.publicTabLoaded = true;
+      } catch {
+        // leave publicTabLoaded false so next switch attempt retries
+      }
     }
   }
 }

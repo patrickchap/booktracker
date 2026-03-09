@@ -1,9 +1,9 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { BookClubService } from '../../core/services/book-club.service';
-import { UserSearchResult } from '../../core/models/book-club.model';
+import { BookClub, UserSearchResult } from '../../core/models/book-club.model';
 
 @Component({
   selector: 'app-create-club',
@@ -11,7 +11,7 @@ import { UserSearchResult } from '../../core/models/book-club.model';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './create-club.component.html'
 })
-export class CreateClubComponent {
+export class CreateClubComponent implements OnDestroy {
   private bookClubService = inject(BookClubService);
   private router = inject(Router);
 
@@ -26,6 +26,13 @@ export class CreateClubComponent {
   showDropdown = signal(false);
 
   private searchDebounce: ReturnType<typeof setTimeout> | null = null;
+
+  ngOnDestroy(): void {
+    if (this.searchDebounce) {
+      clearTimeout(this.searchDebounce);
+      this.searchDebounce = null;
+    }
+  }
 
   onSearchInput(): void {
     if (this.searchDebounce) {
@@ -76,16 +83,19 @@ export class CreateClubComponent {
     if (!this.canSubmit) return;
     this.isSubmitting.set(true);
     this.error.set(null);
+    let club: BookClub;
     try {
-      const club = await this.bookClubService.createClub({
+      club = await this.bookClubService.createClub({
         name: this.name.trim(),
         privacy: this.privacy,
         invitedUserIds: this.invitedUsers().map(u => u.id)
       });
-      await this.router.navigate(['/clubs', club.id]);
     } catch {
       this.error.set('Failed to create club. Please try again.');
       this.isSubmitting.set(false);
+      return;
     }
+    await this.router.navigate(['/clubs', club.id]);
+    this.isSubmitting.set(false);
   }
 }

@@ -45,6 +45,52 @@ public class BookClubsControllerTests
     }
 
     [Fact]
+    public async Task GetClub_ReturnsOk_WhenClubExists()
+    {
+        // Arrange
+        var clubId = Guid.NewGuid();
+        var club = new BookClubSummaryDto(clubId, "Test Club", null, null, "Public", 5, null, Guid.Empty);
+        _bookClubServiceMock.Setup(x => x.GetClubByIdAsync(_testUserId, clubId)).ReturnsAsync(club);
+
+        // Act
+        var result = await _controller.GetClub(clubId);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var returnedClub = Assert.IsType<BookClubSummaryDto>(okResult.Value);
+        Assert.Equal(clubId, returnedClub.Id);
+        _bookClubServiceMock.Verify(x => x.GetClubByIdAsync(_testUserId, clubId), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetClub_ReturnsNotFound_WhenClubDoesNotExist()
+    {
+        // Arrange
+        var clubId = Guid.NewGuid();
+        _bookClubServiceMock.Setup(x => x.GetClubByIdAsync(_testUserId, clubId))
+            .ReturnsAsync((BookClubSummaryDto?)null);
+
+        // Act
+        var result = await _controller.GetClub(clubId);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetClub_ReturnsUnauthorized_WhenUserIdClaimMissing()
+    {
+        // Arrange
+        SetHttpContextWithoutUserClaim();
+
+        // Act
+        var result = await _controller.GetClub(Guid.NewGuid());
+
+        // Assert
+        Assert.IsType<UnauthorizedResult>(result.Result);
+    }
+
+    [Fact]
     public async Task GetMyClubs_ReturnsOk_WithClubList()
     {
         // Arrange

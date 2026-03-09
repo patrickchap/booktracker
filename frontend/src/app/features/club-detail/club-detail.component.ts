@@ -53,6 +53,8 @@ export class ClubDetailComponent implements OnInit {
       await this.bookClubService.deleteClub(c.id);
       this.router.navigate(['/clubs']);
     } catch {
+      this.error.set('Failed to delete club. Please try again.');
+    } finally {
       this.deleting.set(false);
     }
   }

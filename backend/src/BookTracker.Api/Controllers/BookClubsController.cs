@@ -35,6 +35,9 @@ public class BookClubsController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
+        if (page < 1 || pageSize < 1 || pageSize > 100)
+            return BadRequest("page must be ≥ 1 and pageSize must be between 1 and 100.");
+
         var userId = GetUserId();
         if (userId == null) return Unauthorized();
 
@@ -49,7 +52,7 @@ public class BookClubsController : ControllerBase
         if (userId == null) return Unauthorized();
 
         var club = await _bookClubService.CreateClubAsync(userId.Value, request);
-        return CreatedAtAction(nameof(CreateClub), new { id = club.Id }, club);
+        return CreatedAtAction(nameof(GetClub), new { id = club.Id }, club);
     }
 
     [HttpGet("{id:guid}")]

@@ -68,7 +68,9 @@ public class BookClubService : IBookClubService
 
     public async Task<BookClubSummaryDto> CreateClubAsync(Guid userId, CreateBookClubRequest request)
     {
-        var privacy = Enum.Parse<ClubPrivacy>(request.Privacy, ignoreCase: true);
+        if (!Enum.TryParse<ClubPrivacy>(request.Privacy, ignoreCase: true, out var privacy))
+            throw new ArgumentException($"Invalid privacy value: {request.Privacy}");
+
         var inviteCode = Guid.NewGuid().ToString("N")[..8];
 
         var club = new Domain.Entities.BookClub
@@ -150,9 +152,22 @@ public class BookClubService : IBookClubService
 
         if (currentBook != null)
         {
-            var authors = string.IsNullOrEmpty(currentBook.Authors)
-                ? new List<string>()
-                : JsonSerializer.Deserialize<List<string>>(currentBook.Authors) ?? new List<string>();
+            List<string> authors;
+            if (string.IsNullOrEmpty(currentBook.Authors))
+            {
+                authors = new List<string>();
+            }
+            else
+            {
+                try
+                {
+                    authors = JsonSerializer.Deserialize<List<string>>(currentBook.Authors) ?? new List<string>();
+                }
+                catch (JsonException)
+                {
+                    authors = new List<string>();
+                }
+            }
 
             currentBookDto = new CurrentBookDto(
                 Title: currentBook.Title,

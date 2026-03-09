@@ -80,6 +80,69 @@ describe('BookClubService', () => {
     });
   });
 
+  describe('createClub', () => {
+    it('createClub_PostsAndReturnsNewClub', async () => {
+      const request = { name: 'My Club', privacy: 'Public' as const, invitedUserIds: [] };
+
+      const promise = service.createClub(request);
+      const req = httpMock.expectOne(`${environment.apiUrl}/clubs`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(request);
+      req.flush(mockClub);
+      const result = await promise;
+
+      expect(result).toEqual(mockClub);
+    });
+  });
+
+  describe('getClub', () => {
+    it('getClub_GetsByIdAndReturnsClub', async () => {
+      const promise = service.getClub('1');
+      const req = httpMock.expectOne(`${environment.apiUrl}/clubs/1`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockClub);
+      const result = await promise;
+
+      expect(result).toEqual(mockClub);
+    });
+  });
+
+  describe('searchUsers', () => {
+    it('searchUsers_ReturnsMatchingUsers', async () => {
+      const mockUsers = [{ id: '2', displayName: 'Alice', email: 'alice@test.com', avatarUrl: undefined }];
+
+      const promise = service.searchUsers('alice');
+      const req = httpMock.expectOne(
+        r => r.url === `${environment.apiUrl}/clubs/users/search` && r.params.get('q') === 'alice'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockUsers);
+      const result = await promise;
+
+      expect(result).toEqual(mockUsers);
+    });
+  });
+
+  describe('error paths', () => {
+    it('loadMyClubs_SetsLoadingMineToFalse_OnError', async () => {
+      const promise = service.loadMyClubs();
+      const req = httpMock.expectOne(`${environment.apiUrl}/clubs/mine`);
+      req.flush(null, { status: 500, statusText: 'Server Error' });
+      await promise;
+
+      expect(service.isLoadingMine()).toBe(false);
+    });
+
+    it('loadPublicClubs_SetsLoadingPublicToFalse_OnError', async () => {
+      const promise = service.loadPublicClubs();
+      const req = httpMock.expectOne(r => r.url === `${environment.apiUrl}/clubs/public`);
+      req.flush(null, { status: 500, statusText: 'Server Error' });
+      await promise;
+
+      expect(service.isLoadingPublic()).toBe(false);
+    });
+  });
+
   describe('loadPublicClubs', () => {
     it('loadPublicClubs_SetsPublicClubsSignal', async () => {
       const promise = service.loadPublicClubs();

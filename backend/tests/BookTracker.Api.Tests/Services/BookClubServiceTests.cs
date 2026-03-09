@@ -290,9 +290,10 @@ public class BookClubServiceTests
 
         Assert.Single(result);
         Assert.NotNull(result[0].CurrentBook);
-        Assert.Equal(2, result[0].CurrentBook!.Authors.Count);
-        Assert.Contains("Jane Doe", result[0].CurrentBook.Authors);
-        Assert.Contains("John Smith", result[0].CurrentBook.Authors);
+        var currentBook = result[0].CurrentBook!;
+        Assert.Equal(2, currentBook.Authors.Count);
+        Assert.Contains("Jane Doe", currentBook.Authors);
+        Assert.Contains("John Smith", currentBook.Authors);
     }
 
     [Fact]
